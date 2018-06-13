@@ -6,7 +6,7 @@ import (
 )
 
 func TestEzError(t *testing.T) {
-	err := GenEzErr("100", "message")
+	err := New("message", "100")
 
 	ok := IsEz(err)
 
@@ -14,7 +14,7 @@ func TestEzError(t *testing.T) {
 		t.Fatal("error is not MyError")
 	}
 
-	if err.Error() != "100: message" {
+	if err.Error() != "<100> message" {
 		t.Fatal("message error")
 	}
 
@@ -22,7 +22,8 @@ func TestEzError(t *testing.T) {
 	fmt.Println(err.GetCode())
 	fmt.Println(err.GetMsg())
 
-	err.SetDetail("hello")
-	err.SetDetail("hello2")
+	err.SetDetail("hello1").SetDetail(2)
+	err.SetDetail("hello3")
 	fmt.Println(err.GetDetail())
+	fmt.Println(err.Error())
 }

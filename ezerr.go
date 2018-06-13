@@ -10,8 +10,15 @@ type EzErr struct {
 }
 
 // Error - as an error, must have this method
-func (e *EzErr) Error() string {
-	return fmt.Sprintf("%v: %v", e.code, e.msg)
+func (e *EzErr) Error() (errResult string) {
+	errResult = e.msg
+	if e.code != "" {
+		errResult = fmt.Sprintf("<%v> %v", e.code, errResult)
+	}
+	if len(e.detail) != 0 {
+		errResult = fmt.Sprintf("%v %v", errResult, e.detail)
+	}
+	return
 }
 
 // GetCode - get code of the ezerr
@@ -25,8 +32,9 @@ func (e *EzErr) GetMsg() string {
 }
 
 // SetDetail - set any detail into ezerr
-func (e *EzErr) SetDetail(detail string) {
+func (e *EzErr) SetDetail(detail interface{}) *EzErr {
 	e.detail = append(e.detail, detail)
+	return e
 }
 
 // GetDetail - get all the detail of the ezerr
@@ -34,10 +42,14 @@ func (e *EzErr) GetDetail() []interface{} {
 	return e.detail
 }
 
-// GenEzErr - generate ezerr
-func GenEzErr(code string, msg string) *EzErr {
+// New - generate ezerr
+func New(msg string, code ...string) *EzErr {
+	c := ""
+	if len(code) != 0 {
+		c = code[0]
+	}
 	return &EzErr{
-		code: code,
+		code: c,
 		msg:  msg,
 	}
 }
@@ -46,4 +58,13 @@ func GenEzErr(code string, msg string) *EzErr {
 func IsEz(err error) bool {
 	_, ok := err.(*EzErr)
 	return ok
+}
+
+// ToEz -
+func ToEz(err error) *EzErr {
+	ez, ok := err.(*EzErr)
+	if ok {
+		return ez
+	}
+	return New(err.Error())
 }
